@@ -1,0 +1,283 @@
+
+'use client';
+
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { Button } from '@/components/ui/button';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
+import { useStore } from '@/lib/store';
+import { useToast } from '@/hooks/use-toast';
+import { useEffect, useState } from 'react';
+import { AlertCircle, Loader2 } from 'lucide-react';
+import type { Cashier } from '@/lib/types';
+import { Card, CardContent } from './ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
+import { useSearchParams } from 'next/navigation';
+import { Alert, AlertDescription, AlertTitle } from './ui/alert';
+
+
+const cashierFormSchema = z.object({
+  cashierId: z.string().min(1, { message: 'Please select a cashier.' }),
+  pin: z.string().length(4, { message: 'PIN must be 4 digits.' }),
+  floatAmount: z.coerce.number().min(0, { message: 'Float must be a positive number.' }),
+});
+
+const adminLoginSchema = z.object({
+  email: z.string().email({ message: 'Please enter a valid email.' }),
+  password: z.string().min(1, { message: 'Password cannot be empty.' }),
+  role: z.enum(['SUPER_ADMIN', 'ADMIN'], { required_error: 'Please select an administrative tier.' }),
+});
+
+const adminSignUpSchema = z.object({
+    email: z.string().email({ message: 'Please enter a valid email.' }),
+    password: z.string().min(6, { message: 'Password must be at least 6 characters.' }),
+});
+
+export default function LoginForm() {
+  const { cashiers, fetchCashiers, fetchLocations, activeLocation, startShift, adminLogin, setSimulatedRole } = useStore();
+  const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const searchParams = useSearchParams();
+  const defaultTab = searchParams.get('admin') === 'true' ? 'admin' : 'cashier';
+
+  useEffect(() => {
+    fetchCashiers(true);
+    fetchLocations(true); // Fetches all locations and finds the active one
+  }, [fetchCashiers, fetchLocations]);
+
+  const cashierForm = useForm<z.infer<typeof cashierFormSchema>>({
+    resolver: zodResolver(cashierFormSchema),
+    defaultValues: {
+      cashierId: '',
+      pin: '',
+      floatAmount: 0,
+    },
+  });
+
+  const adminLoginForm = useForm<z.infer<typeof adminLoginSchema>>({
+    resolver: zodResolver(adminLoginSchema),
+    defaultValues: {
+      email: '',
+      password: '',
+      role: 'ADMIN',
+    },
+  });
+
+  async function onCashierSubmit(values: z.infer<typeof cashierFormSchema>) {
+    if (!activeLocation) {
+      toast({
+        variant: 'destructive',
+        title: 'Login Failed',
+        description: 'No active location has been set by an administrator.',
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+    const success = await startShift(activeLocation.id, values.cashierId, values.pin, values.floatAmount);
+    setIsSubmitting(false);
+
+    if (success) {
+      toast({
+        title: 'Shift Started',
+        description: 'You have been successfully logged in.',
+      });
+    } else {
+      toast({
+        variant: 'destructive',
+        title: 'Login Failed',
+        description: 'Invalid cashier or PIN. Please try again.',
+      });
+      cashierForm.setError('pin', { message: 'Invalid PIN' });
+    }
+  }
+
+  async function onAdminLoginSubmit(values: z.infer<typeof adminLoginSchema>) {
+    setIsSubmitting(true);
+    const { success, error } = await adminLogin(values.email, values.password);
+    setIsSubmitting(false);
+
+    if (success) {
+      setSimulatedRole(values.role as 'SUPER_ADMIN' | 'ADMIN');
+      toast({
+        title: 'Admin Login Successful',
+        description: 'Welcome to the admin dashboard.',
+      });
+    } else {
+      toast({
+        variant: 'destructive',
+        title: 'Login Failed',
+        description: error || 'Invalid email or password.',
+      });
+      adminLoginForm.setError('password', { message: 'Invalid credentials' });
+    }
+  }
+  
+  const isCashierLoginDisabled = !activeLocation || isSubmitting;
+
+
+  return (
+    <Card>
+      <CardContent className="p-0">
+        <Tabs defaultValue={defaultTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="cashier">Cashier Login</TabsTrigger>
+            <TabsTrigger value="admin">Admin Login</TabsTrigger>
+          </TabsList>
+          <TabsContent value="cashier" className="p-6">
+             {!activeLocation ? (
+                <Alert variant="destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertTitle>No Active Location</AlertTitle>
+                  <AlertDescription>
+                    An administrator has not set an active location. Cashier login is disabled.
+                  </AlertDescription>
+                </Alert>
+             ) : (
+                <Form {...cashierForm}>
+                  <form onSubmit={cashierForm.handleSubmit(onCashierSubmit)} className="space-y-6">
+                    <FormItem>
+                      <FormLabel>Active Location</FormLabel>
+                      <FormControl>
+                        <Input readOnly value={activeLocation.name} />
+                      </FormControl>
+                    </FormItem>
+                    
+                    <FormField
+                      control={cashierForm.control}
+                      name="cashierId"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Cashier Name</FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isCashierLoginDisabled}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select a cashier to login" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {cashiers.map((cashier: Cashier) => (
+                                <SelectItem key={cashier.id} value={cashier.id}>
+                                  {cashier.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={cashierForm.control}
+                      name="pin"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>4-Digit PIN</FormLabel>
+                          <FormControl>
+                            <Input type="password" placeholder="****" {...field} maxLength={4} disabled={isCashierLoginDisabled}/>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={cashierForm.control}
+                      name="floatAmount"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Starting Float (Rs)</FormLabel>
+                          <FormControl>
+                            <Input type="number" step="0.01" {...field} disabled={isCashierLoginDisabled} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <Button type="submit" className="w-full" disabled={isCashierLoginDisabled}>
+                      {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                      {isSubmitting ? 'Logging In...' : 'Start Shift & Login'}
+                    </Button>
+                  </form>
+                </Form>
+             )}
+          </TabsContent>
+          <TabsContent value="admin" className="p-6">
+            <Form {...adminLoginForm}>
+                <form onSubmit={adminLoginForm.handleSubmit(onAdminLoginSubmit)} className="space-y-6">
+                    <FormField
+                    control={adminLoginForm.control}
+                    name="email"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Email</FormLabel>
+                        <FormControl>
+                            <Input placeholder="admin@fids.mu" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                    />
+                    <FormField
+                    control={adminLoginForm.control}
+                    name="password"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Password</FormLabel>
+                        <FormControl>
+                            <Input type="password" placeholder="••••••••" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                    />
+                    
+                    <FormField
+                      control={adminLoginForm.control}
+                      name="role"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Administrative Tier</FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger className="bg-white/5 border-slate-700 text-white h-12">
+                                <SelectValue placeholder="Select Tier" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent className="bg-slate-900 border-slate-800 text-white">
+                              <SelectItem value="SUPER_ADMIN">⚙️ Super Admin (Global Control)</SelectItem>
+                              <SelectItem value="ADMIN">📍 Outlet Manager (Local Admin)</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <Button type="submit" className="w-full" disabled={isSubmitting}>
+                    {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    {isSubmitting ? 'Signing In...' : 'Sign In'}
+                    </Button>
+                </form>
+            </Form>
+          </TabsContent>
+        </Tabs>
+      </CardContent>
+    </Card>
+  );
+}
