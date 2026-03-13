@@ -217,7 +217,7 @@ export const useStore = create<AppState>()(
         const cashier = get().cashiers.find(c => c.id === cashierId);
         if (!cashier || cashier.pin !== pin) return false;
         
-        set({ 
+        set(state => ({ 
             activeShift: {
                 stationId: 'pos-1',
                 locationId,
@@ -229,8 +229,9 @@ export const useStore = create<AppState>()(
             },
             activeAdmin: null,
             currentOrder: [],
-            isReportingDone: false
-         });
+            isReportingDone: false,
+            simulatedUser: state.simulatedUser ? { ...state.simulatedUser, role: 'CASHIER' } : null
+         }));
         return true;
       },
 
