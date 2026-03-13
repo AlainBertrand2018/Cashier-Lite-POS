@@ -122,6 +122,7 @@ export interface OrderItem {
   categoryId: string;
   supplierId: string;
   specialInstructions?: string;
+  status?: 'pending' | 'sent';
 }
 
 export interface Order {
@@ -139,6 +140,8 @@ export interface Order {
   orderType?: OrderType;
   tableNumber?: number;
   guestCount?: number;
+  customerName?: string;
+  customerPhone?: string;
   serverName?: string;
 }
 

@@ -230,7 +230,7 @@ export const MOCK_PRODUCTS: Product[] = [
     basePrice: 280, buyingPrice: 80, stock: 25, initialStock: 25,
     categoryId: 'cat-6', supplierId: 'sup-1', createdAt: new Date().toISOString(),
     prepTime: 15, dietaryTags: [], isAvailable: true, courseType: 'Dessert',
-    image: '/images/menu_pics/chocolateLavaCake.webp'
+    image: '/images/menu_pics/chocolatelavacake.webp'
   },
 
   // ── SOFT DRINKS ──

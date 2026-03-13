@@ -14,6 +14,7 @@ import type {
   Category, 
   Location, 
   CashierRole,
+  OrderType,
   BusinessProfile,
   LocationPrice,
   SimulatedRole,
@@ -47,6 +48,7 @@ interface AppState {
   locationPrices: LocationPrice[];
   activeLocation: Location | null;
   currentOrder: OrderItem[];
+  openOrders: Order[];
   completedOrders: Order[];
   lastCompletedOrder: Order | null;
   isReportingDone: boolean;
@@ -56,6 +58,11 @@ interface AppState {
   staff: StaffMember[];
   departments: Department[];
   complianceRecords: ComplianceRecord[];
+  selectedOrderType: OrderType;
+  selectedTable: number | null;
+  selectedGuests: number | null;
+  selectedCustomerName: string;
+  selectedCustomerPhone: string;
 
   // Actions
   setSimulatedRole: (role: SimulatedRole) => void;
@@ -82,7 +89,14 @@ interface AppState {
   clearCurrentOrder: () => void;
   clearCompletedOrders: () => void;
   completeOrder: () => Promise<void>;
+  submitOrderToKitchen: () => Promise<void>;
   setLastCompletedOrder: (order: Order | null) => void;
+  setOrderType: (type: OrderType) => void;
+  setTable: (table: number | null) => void;
+  setGuests: (guests: number | null) => void;
+  setCustomerInfo: (name: string, phone: string) => void;
+  isTableOccupied: (tableNumber: number) => boolean;
+  printReceipt: (order: Order, type: 'KITCHEN' | 'CUSTOMER' | 'ADMIN') => void;
   
   // Management
   updateBusinessProfile: (data: BusinessProfile) => Promise<void>;
@@ -137,6 +151,7 @@ export const useStore = create<AppState>()(
       locationPrices: [],
       activeLocation: null,
       currentOrder: [],
+      openOrders: [],
       completedOrders: [],
       lastCompletedOrder: null,
       isReportingDone: false,
@@ -146,6 +161,11 @@ export const useStore = create<AppState>()(
       staff: [],
       departments: [],
       complianceRecords: [],
+      selectedOrderType: 'DINE_IN',
+      selectedTable: null,
+      selectedGuests: null,
+      selectedCustomerName: '',
+      selectedCustomerPhone: '',
 
       setSimulatedRole: (role) => set(state => ({
         simulatedUser: state.simulatedUser ? { ...state.simulatedUser, role } : null
@@ -245,17 +265,37 @@ export const useStore = create<AppState>()(
 
       adminLogout: () => set({ activeAdmin: null }),
 
+      setOrderType: (type) => set({ selectedOrderType: type }),
+      setTable: (table) => set({ selectedTable: table }),
+      setGuests: (guests) => set({ selectedGuests: guests }),
+      setCustomerInfo: (name, phone) => set({ selectedCustomerName: name, selectedCustomerPhone: phone }),
+      
+      isTableOccupied: (tableNumber) => {
+        const { openOrders, currentOrder, selectedTable } = get();
+        // Check if existing open orders have this table
+        // But exclude the current order's table if it's already "live"
+        return openOrders.some(o => o.tableNumber === tableNumber && o.tableNumber !== selectedTable);
+      },
+
+      printReceipt: (order, type) => {
+        console.log(`[PRINTING] ${type} Receipt for Order ${order.id}`);
+        // In a real app, this would send to a Bluetooth/ESC-POS printer
+        // For simulation, we just log and the UI will reflect "Printed"
+      },
+
       addProductToOrder: (product) => {
         const { currentOrder, activeShift, getProductPrice } = get();
         if (!activeShift) return;
 
         const price = getProductPrice(product.id, activeShift.locationId);
-        const existing = currentOrder.find(item => item.productId === product.id);
+        const existing = currentOrder.find(item => item.productId === product.id && item.status === 'pending');
 
         if (existing) {
           set({
             currentOrder: currentOrder.map(item =>
-              item.productId === product.id ? { ...item, quantity: item.quantity + 1 } : item
+              (item.productId === product.id && item.status === 'pending') 
+                ? { ...item, quantity: item.quantity + 1 } 
+                : item
             )
           });
         } else {
@@ -267,42 +307,103 @@ export const useStore = create<AppState>()(
               price,
               quantity: 1,
               categoryId: product.categoryId,
-              supplierId: product.supplierId
+              supplierId: product.supplierId,
+              status: 'pending'
             }]
           });
         }
       },
 
       removeProductFromOrder: (productId) => {
-        set({ currentOrder: get().currentOrder.filter(item => item.productId !== productId) });
+        const { currentOrder } = get();
+        set({
+          currentOrder: currentOrder.filter(item => !(item.productId === productId && item.status === 'pending'))
+        });
       },
 
       updateProductQuantity: (productId, quantity) => {
-        if (quantity <= 0) {
-          get().removeProductFromOrder(productId);
-        } else {
-          set({
-            currentOrder: get().currentOrder.map(item =>
-              item.productId === productId ? { ...item, quantity } : item
-            )
-          });
-        }
+        const { currentOrder } = get();
+        set({
+          currentOrder: currentOrder.map(item =>
+            (item.productId === productId && item.status === 'pending') ? { ...item, quantity: Math.max(1, quantity) } : item
+          )
+        });
       },
 
-      clearCurrentOrder: () => set({ currentOrder: [] }),
+      submitOrderToKitchen: async () => {
+        const { currentOrder, activeShift, selectedOrderType, selectedTable, selectedGuests, selectedCustomerName, selectedCustomerPhone, openOrders, printReceipt } = get();
+        if (!activeShift) return;
 
-      clearCompletedOrders: () => set({ completedOrders: [], isReportingDone: false }),
+        // 1. Mark items as sent
+        const updatedOrder = currentOrder.map(item => ({ ...item, status: 'sent' as const }));
+        set({ currentOrder: updatedOrder });
+
+        // 2. Update/Create Open Order
+        const subtotal = updatedOrder.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        const vat = subtotal * 0.15;
+        const total = subtotal + vat;
+
+        const ticket: Order = {
+          id: `open-${selectedTable || 'T'}-${Date.now()}`,
+          locationId: activeShift.locationId,
+          items: updatedOrder,
+          subtotal,
+          vat,
+          total,
+          createdAt: Date.now(),
+          cashierId: activeShift.cashierId,
+          stationId: activeShift.stationId,
+          synced: false,
+          orderType: selectedOrderType,
+          tableNumber: selectedTable || undefined,
+          guestCount: selectedGuests || undefined,
+          customerName: selectedCustomerName || undefined,
+          customerPhone: selectedCustomerPhone || undefined,
+          serverName: activeShift.cashierName
+        };
+
+        set({
+          openOrders: [
+            ...openOrders.filter(o => o.tableNumber !== selectedTable || !selectedTable),
+            ticket
+          ]
+        });
+
+        // 3. Printing Simulation (1 Copy for Kitchen)
+        printReceipt(ticket, 'KITCHEN');
+      },
+
+      clearCurrentOrder: () => set({ 
+        currentOrder: [], 
+        selectedTable: null, 
+        selectedGuests: null,
+        selectedCustomerName: '',
+        selectedCustomerPhone: ''
+      }),
+
+      clearCompletedOrders: () => set({ completedOrders: [] }),
 
       completeOrder: async () => {
-        const { currentOrder, activeShift } = get();
-        if (!currentOrder.length || !activeShift) return;
+        const { 
+          currentOrder, 
+          activeShift, 
+          completedOrders, 
+          openOrders,
+          selectedOrderType,
+          selectedTable,
+          selectedGuests,
+          selectedCustomerName,
+          selectedCustomerPhone,
+          printReceipt
+        } = get();
+        if (!activeShift || currentOrder.length === 0) return;
 
-        const subtotal = currentOrder.reduce((acc, item) => acc + (item.price * item.quantity), 0);
-        const vat = subtotal * 0.15; // Placeholder VAT logic
+        const subtotal = currentOrder.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        const vat = subtotal * 0.15;
         const total = subtotal + vat;
 
         const newOrder: Order = {
-          id: `order-${Date.now()}`,
+          id: `ord-${Date.now()}`,
           locationId: activeShift.locationId,
           items: [...currentOrder],
           subtotal,
@@ -311,14 +412,28 @@ export const useStore = create<AppState>()(
           createdAt: Date.now(),
           cashierId: activeShift.cashierId,
           stationId: activeShift.stationId,
-          synced: false
+          synced: false,
+          orderType: selectedOrderType,
+          tableNumber: selectedTable || undefined,
+          guestCount: selectedGuests || undefined,
+          customerName: selectedCustomerName || undefined,
+          customerPhone: selectedCustomerPhone || undefined,
+          serverName: activeShift.cashierName
         };
 
-        // Update stock locally
+        // Printing Simulation (2 Copies - Customer & Admin)
+        printReceipt(newOrder, 'CUSTOMER');
+        printReceipt(newOrder, 'ADMIN');
+
         set(state => ({
-          completedOrders: [...state.completedOrders, newOrder],
+          completedOrders: [newOrder, ...state.completedOrders],
+          openOrders: state.openOrders.filter(o => o.tableNumber !== selectedTable || !selectedTable),
           lastCompletedOrder: newOrder,
           currentOrder: [],
+          selectedTable: null,
+          selectedGuests: null,
+          selectedCustomerName: '',
+          selectedCustomerPhone: '',
           products: state.products.map(p => {
             const item = currentOrder.find(oi => oi.productId === p.id);
             return item ? { ...p, stock: p.stock - item.quantity } : p;
@@ -475,6 +590,11 @@ export const useStore = create<AppState>()(
           currentOrder: [],
           activeShift: null,
           activeAdmin: null,
+          selectedOrderType: 'DINE_IN',
+          selectedTable: null,
+          selectedGuests: null,
+          selectedCustomerName: '',
+          selectedCustomerPhone: '',
           simulatedUser: { id: 'sim-1', name: 'Demo User', email: 'demo@cashierlite.mu', role: 'SUPER_ADMIN' }
         });
         localStorage.removeItem('fids-cashier-lite-storage');
