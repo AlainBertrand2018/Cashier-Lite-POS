@@ -82,7 +82,10 @@ export default function AddProductDialog({ isOpen, onOpenChange }: AddProductDia
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSubmitting(true);
-    await addProduct(values);
+    // Explicitly handle initialStock for the store
+    await addProduct({
+      ...values,
+    });
     setIsSubmitting(false);
 
     toast({

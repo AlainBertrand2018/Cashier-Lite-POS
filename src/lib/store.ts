@@ -61,8 +61,8 @@ interface AppState {
   setSimulatedRole: (role: SimulatedRole) => void;
   fetchBusinessProfile: () => Promise<void>;
   fetchSuppliers: (force?: boolean) => Promise<void>;
-  fetchProducts: () => Promise<void>;
-  fetchCategories: () => Promise<void>;
+  fetchProducts: (force?: boolean) => Promise<void>;
+  fetchCategories: (force?: boolean) => Promise<void>;
   fetchCashiers: (force?: boolean) => Promise<void>;
   fetchLocations: (force?: boolean) => Promise<void>;
   fetchLocationPrices: () => Promise<void>;
@@ -98,6 +98,7 @@ interface AppState {
   deleteCategory: (id: string) => Promise<void>;
   
   addLocation: (data: Omit<Location, 'id' | 'createdAt' | 'isActive'>) => Promise<string>;
+  resetAppDefaults: () => void;
   setActiveLocation: (id: string) => Promise<void>;
   
   setLocationPrice: (productId: string, locationId: string, price: number) => Promise<void>;
@@ -162,14 +163,14 @@ export const useStore = create<AppState>()(
         set({ suppliers: MOCK_SUPPLIERS });
       },
 
-      fetchProducts: async () => {
+      fetchProducts: async (force = false) => {
         // In real app, this would fetch from DB
-        if (get().products.length === 0) {
-            set({ products: MOCK_PRODUCTS });
-        }
+        if (!force && get().products.length > 0) return;
+        set({ products: MOCK_PRODUCTS });
       },
 
-      fetchCategories: async () => {
+      fetchCategories: async (force = false) => {
+        if (!force && get().categories.length > 0) return;
         set({ categories: MOCK_CATEGORIES });
       },
 
@@ -455,6 +456,29 @@ export const useStore = create<AppState>()(
 
       deleteLocation: async (id) => {
         set(state => ({ locations: state.locations.filter(l => l.id !== id) }));
+      },
+
+      resetAppDefaults: () => {
+        set({
+          businessProfile: MOCK_BUSINESS,
+          suppliers: MOCK_SUPPLIERS,
+          products: MOCK_PRODUCTS,
+          categories: MOCK_CATEGORIES,
+          cashiers: MOCK_CASHIERS,
+          locations: MOCK_LOCATIONS,
+          activeLocation: MOCK_LOCATIONS[0],
+          locationPrices: MOCK_LOCATION_PRICES,
+          staff: MOCK_STAFF,
+          departments: MOCK_DEPARTMENTS,
+          complianceRecords: MOCK_COMPLIANCE,
+          completedOrders: MOCK_ORDERS,
+          currentOrder: [],
+          activeShift: null,
+          activeAdmin: null,
+          simulatedUser: { id: 'sim-1', name: 'Demo User', email: 'demo@cashierlite.mu', role: 'SUPER_ADMIN' }
+        });
+        localStorage.removeItem('fids-cashier-lite-storage');
+        window.location.reload();
       },
     }),
     {

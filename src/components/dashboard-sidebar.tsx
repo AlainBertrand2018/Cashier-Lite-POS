@@ -16,7 +16,8 @@ import {
   Wallet,
   Settings,
   LogOut,
-  ShieldAlert
+  ShieldAlert,
+  RefreshCcw
 } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from './ui/button';
@@ -89,6 +90,20 @@ export function DashboardSidebar() {
             </div>
           )}
         </div>
+
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className={cn("w-full justify-start text-slate-500 hover:text-amber-400 hover:bg-amber-400/10", isCollapsed && "justify-center p-0")}
+          onClick={() => {
+            if(confirm('This will RESET all local storage data to the latest mock data defaults. Continue?')) {
+              useStore.getState().resetAppDefaults();
+            }
+          }}
+        >
+          <RefreshCcw className="h-5 w-5 mr-2" />
+          {!isCollapsed && <span>Reset System Data</span>}
+        </Button>
 
         <Button 
           variant="ghost" 

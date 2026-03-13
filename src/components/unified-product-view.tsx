@@ -44,45 +44,51 @@ function ProductCard({ product, iconSrc }: { product: Product, iconSrc?: string 
   return (
     <Card 
       className={cn(
-        "flex flex-col overflow-hidden transition-all hover:shadow-lg cursor-pointer h-full relative border-slate-200 dark:border-slate-800",
-        disabled && "opacity-50 cursor-not-allowed hover:shadow-sm"
-        )}
+        "group relative aspect-square flex flex-col overflow-hidden transition-all hover:shadow-xl cursor-pointer border-slate-200 dark:border-slate-800 rounded-2xl",
+        disabled && "opacity-60 cursor-not-allowed"
+      )}
       onClick={() => !disabled && addProductToOrder(product)}
     >
-        <CardContent className="relative flex-grow p-0 flex flex-col items-center gap-0">
-            {/* Image Section */}
-            <div className="w-full h-24 bg-slate-100 dark:bg-slate-950 flex items-center justify-center overflow-hidden relative">
-              {product.image ? (
-                <img 
-                  src={product.image} 
-                  alt={product.name}
-                  className="w-full h-full object-cover transition-transform hover:scale-105"
-                />
-              ) : (
-                <span className="text-4xl">{iconSrc || '🍴'}</span>
-              )}
+      {/* Background Image / Icon */}
+      <div className="absolute inset-0 w-full h-full bg-slate-50 dark:bg-slate-950 flex items-center justify-center overflow-hidden">
+        {product.image ? (
+          <img 
+            src={product.image} 
+            alt={product.name}
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+          />
+        ) : (
+          <div className="flex flex-col items-center gap-2 opacity-40">
+            <span className="text-5xl">{iconSrc || '🍴'}</span>
+          </div>
+        )}
+      </div>
 
-              <Badge 
-                variant={disabled ? 'destructive' : 'secondary'} 
-                className={cn(
-                    'absolute top-2 right-2 text-[10px] px-1.5 py-0 h-4 shadow-sm',
-                    !disabled && 'bg-emerald-500 text-white border-none'
-                )}
-              >
-              {is86 ? "86'd" : isOutOfStock ? 'Empty' : `${product.stock} left`}
-              </Badge>
-            </div>
+      {/* Badges/Tags (Overlay Top) */}
+      <div className="absolute top-2 left-2 right-2 flex justify-between items-start pointer-events-none">
+        <Badge 
+          variant={disabled ? 'destructive' : 'secondary'} 
+          className={cn(
+            'text-[10px] px-2 py-0.5 h-auto shadow-md backdrop-blur-sm border-none font-bold uppercase tracking-wider',
+            !disabled && 'bg-emerald-500 text-white'
+          )}
+        >
+          {is86 ? "86'd" : isOutOfStock ? 'Sold Out' : `${product.stock} Left`}
+        </Badge>
+      </div>
 
-            {/* Content Section */}
-            <div className="p-3 w-full text-center flex flex-col gap-1">
-              <p className="text-xs font-bold leading-tight line-clamp-1 text-slate-700 dark:text-slate-200 uppercase tracking-tight">
-                {product.name}
-              </p>
-              <p className="text-sm font-black text-emerald-600 dark:text-emerald-400">
-                Rs {price.toFixed(2)}
-              </p>
-            </div>
-        </CardContent>
+      {/* Content Section (Bottom White Overlay) */}
+      <div className="absolute bottom-0 left-0 right-0 bg-white dark:bg-slate-900/95 p-3 flex flex-col gap-0.5 border-t border-slate-100 dark:border-slate-800 shadow-[0_-8px_20px_-10px_rgba(0,0,0,0.1)]">
+        <p className="text-[11px] font-bold leading-tight line-clamp-1 text-slate-800 dark:text-slate-100 uppercase tracking-tight">
+          {product.name}
+        </p>
+        <p className="text-sm font-black text-emerald-600 dark:text-emerald-400">
+          Rs {price.toFixed(2)}
+        </p>
+      </div>
+
+      {/* Hover Selection Effect */}
+      <div className="absolute inset-0 bg-emerald-500/0 group-hover:bg-emerald-500/5 transition-colors duration-300 pointer-events-none" />
     </Card>
   );
 }
@@ -100,8 +106,8 @@ export default function UnifiedProductView() {
   }, [activeShift?.role]);
 
   useEffect(() => {
-    fetchCategories();
-    fetchProducts();
+    fetchCategories(true);
+    fetchProducts(true);
   }, [fetchCategories, fetchProducts]);
 
   // Separate categories into Food and Drinks

@@ -2,15 +2,15 @@
 import { BusinessProfile, Location, Category, Supplier, Product, LocationPrice, Cashier, Department, StaffMember, ComplianceRecord, Order } from './types';
 
 export const MOCK_BUSINESS: BusinessProfile = {
-  name: "",
-  logo: "",
-  corporateAddress: "",
-  brn: "",
-  vat: "",
-  mainLocationId: "",
-  phone: "",
-  email: "",
-  website: "",
+  name: "eLunch",
+  logo: "/images/app_Logo.png",
+  corporateAddress: "Le Caudan Waterfront, Port Louis",
+  brn: "C12345678",
+  vat: "VAT-998877",
+  mainLocationId: "loc-1",
+  phone: "230-123-4567",
+  email: "contact@elunch.mu",
+  website: "www.elunch.mu",
   businessType: 'Restaurant'
 };
 
@@ -125,7 +125,8 @@ export const MOCK_PRODUCTS: Product[] = [
     id: 'prod-15', name: "Garlic Naan", description: "Freshly baked garlic & butter naan bread",
     basePrice: 90, buyingPrice: 20, stock: 150, initialStock: 150,
     categoryId: 'cat-0', supplierId: 'sup-1', createdAt: new Date().toISOString(),
-    prepTime: 5, dietaryTags: [], isAvailable: true, courseType: 'Snack'
+    prepTime: 5, dietaryTags: [], isAvailable: true, courseType: 'Snack',
+    image: '/images/menu_pics/vegan-naan.webp'
   },
 
   // ── STARTERS ──
@@ -133,13 +134,15 @@ export const MOCK_PRODUCTS: Product[] = [
     id: 'prod-2', name: "Crispy Calamari", description: "Lightly battered squid rings with garlic aioli",
     basePrice: 320, buyingPrice: 120, stock: 50, initialStock: 50,
     categoryId: 'cat-1', supplierId: 'sup-2', createdAt: new Date().toISOString(),
-    prepTime: 10, dietaryTags: [], isAvailable: true, courseType: 'Starter'
+    prepTime: 10, dietaryTags: [], isAvailable: true, courseType: 'Starter',
+    image: '/images/menu_pics/crispy-calamari.webp'
   },
   {
     id: 'prod-4', name: "Garden Salad", description: "Fresh greens, cherry tomatoes, cucumber & vinaigrette",
     basePrice: 190, buyingPrice: 45, stock: 60, initialStock: 60,
     categoryId: 'cat-1', supplierId: 'sup-1', createdAt: new Date().toISOString(),
-    prepTime: 5, dietaryTags: ['Vegan', 'Gluten-Free'], isAvailable: true, courseType: 'Starter'
+    prepTime: 5, dietaryTags: ['Vegan', 'Gluten-Free'], isAvailable: true, courseType: 'Starter',
+    image: '/images/menu_pics/gardensalad.webp'
   },
 
   // ── MAIN COURSE ──
@@ -147,61 +150,71 @@ export const MOCK_PRODUCTS: Product[] = [
     id: 'prod-5', name: "Chicken Biryani", description: "Aromatic basmati rice with spiced chicken, saffron & raita",
     basePrice: 450, buyingPrice: 150, stock: 40, initialStock: 40,
     categoryId: 'cat-2', supplierId: 'sup-1', createdAt: new Date().toISOString(),
-    prepTime: 25, dietaryTags: ['Spicy'], isAvailable: true, courseType: 'Main Course'
+    prepTime: 25, dietaryTags: ['Spicy'], isAvailable: true, courseType: 'Main Course',
+    image: '/images/menu_pics/bryani.webp'
   },
   {
     id: 'prod-6', name: "Butter Chicken Curry", description: "Creamy tomato-based chicken curry with naan",
     basePrice: 495, buyingPrice: 160, stock: 35, initialStock: 35,
     categoryId: 'cat-2', supplierId: 'sup-1', createdAt: new Date().toISOString(),
-    prepTime: 20, dietaryTags: [], isAvailable: true, courseType: 'Main Course'
+    prepTime: 20, dietaryTags: [], isAvailable: true, courseType: 'Main Course',
+    image: '/images/menu_pics/butter-chicken-curry.webp'
   },
   {
     id: 'prod-7', name: "Rougaille Saucisse", description: "Mauritian sausage stew with tomato, thyme & chili",
     basePrice: 380, buyingPrice: 110, stock: 45, initialStock: 45,
     categoryId: 'cat-2', supplierId: 'sup-4', createdAt: new Date().toISOString(),
-    prepTime: 20, dietaryTags: ['Spicy'], isAvailable: true, courseType: 'Main Course'
+    prepTime: 20, dietaryTags: ['Spicy'], isAvailable: true, courseType: 'Main Course',
+    image: '/images/menu_pics/rougail-saucisse.webp'
   },
   {
     id: 'prod-8', name: "Vegetable Fried Noodles", description: "Stir-fried egg noodles with seasonal vegetables & soy",
     basePrice: 290, buyingPrice: 70, stock: 60, initialStock: 60,
     categoryId: 'cat-2', supplierId: 'sup-1', createdAt: new Date().toISOString(),
-    prepTime: 12, dietaryTags: ['Vegan'], isAvailable: true, courseType: 'Main Course'
+    prepTime: 12, dietaryTags: ['Vegan'], isAvailable: true, courseType: 'Main Course',
+    image: '/images/menu_pics/fried-veg-noodles.webp'
   },
   {
     id: 'prod-9', name: "300g Ribeye Steak", description: "Grass-fed ribeye, chimichurri & roasted garlic butter",
     basePrice: 950, buyingPrice: 400, stock: 20, initialStock: 20,
     categoryId: 'cat-2', supplierId: 'sup-4', createdAt: new Date().toISOString(),
-    prepTime: 18, dietaryTags: ['Gluten-Free'], isAvailable: true, courseType: 'Main Course'
+    prepTime: 18, dietaryTags: ['Gluten-Free'], isAvailable: true, courseType: 'Main Course',
+    image: '/images/menu_pics/ribeye-steak.webp'
   },
   {
     id: 'prod-10', name: "BBQ Chicken Half", description: "Marinated half chicken, smoky BBQ glaze & coleslaw",
     basePrice: 520, buyingPrice: 180, stock: 30, initialStock: 30,
     categoryId: 'cat-2', supplierId: 'sup-4', createdAt: new Date().toISOString(),
-    prepTime: 22, dietaryTags: ['Gluten-Free'], isAvailable: true, courseType: 'Main Course'
+    prepTime: 22, dietaryTags: ['Gluten-Free'], isAvailable: true, courseType: 'Main Course',
+    image: '/images/menu_pics/chicken-half.webp'
   },
   {
     id: 'prod-11', name: "Grilled Fish of the Day", description: "Freshly caught, grilled with lemon butter & herbs",
     basePrice: 650, buyingPrice: 280, stock: 15, initialStock: 15,
     categoryId: 'cat-2', supplierId: 'sup-2', createdAt: new Date().toISOString(),
-    prepTime: 15, dietaryTags: ['Gluten-Free'], isAvailable: true, courseType: 'Main Course'
+    prepTime: 15, dietaryTags: ['Gluten-Free'], isAvailable: true, courseType: 'Main Course',
+    image: '/images/menu_pics/grilledfish.webp'
   },
   {
     id: 'prod-12', name: "Prawn Curry", description: "Tiger prawns in coconut curry with steamed rice",
     basePrice: 750, buyingPrice: 320, stock: 20, initialStock: 20,
     categoryId: 'cat-2', supplierId: 'sup-2', createdAt: new Date().toISOString(),
-    prepTime: 18, dietaryTags: ['Spicy', 'Gluten-Free'], isAvailable: true, courseType: 'Main Course'
+    prepTime: 18, dietaryTags: ['Spicy', 'Gluten-Free'], isAvailable: true, courseType: 'Main Course',
+    image: '/images/menu_pics/prawncurry.webp'
   },
   {
     id: 'prod-14', name: "Steamed Rice", description: "Fluffy basmati rice side for mains",
     basePrice: 80, buyingPrice: 15, stock: 300, initialStock: 300,
     categoryId: 'cat-2', supplierId: 'sup-1', createdAt: new Date().toISOString(),
-    prepTime: 2, dietaryTags: ['Vegan', 'Gluten-Free'], isAvailable: true, courseType: 'Main Course'
+    prepTime: 2, dietaryTags: ['Vegan', 'Gluten-Free'], isAvailable: true, courseType: 'Main Course',
+    image: '/images/menu_pics/steamed-white-rice.webp'
   },
   {
     id: 'prod-15', name: "Mixed Salad", description: "Fresh garden salad",
     basePrice: 90, buyingPrice: 20, stock: 150, initialStock: 150,
     categoryId: 'cat-2', supplierId: 'sup-1', createdAt: new Date().toISOString(),
-    prepTime: 5, dietaryTags: [], isAvailable: true, courseType: 'Main Course'
+    prepTime: 5, dietaryTags: [], isAvailable: true, courseType: 'Main Course',
+    image: '/images/menu_pics/mixed_salad.webp'
   },
 
   // ── DESSERTS ──
@@ -209,13 +222,15 @@ export const MOCK_PRODUCTS: Product[] = [
     id: 'prod-16', name: "Napolitaine", description: "Classic Mauritian layered cake with jam filling",
     basePrice: 150, buyingPrice: 40, stock: 40, initialStock: 40,
     categoryId: 'cat-6', supplierId: 'sup-1', createdAt: new Date().toISOString(),
-    prepTime: 2, dietaryTags: [], isAvailable: true, courseType: 'Dessert'
+    prepTime: 2, dietaryTags: [], isAvailable: true, courseType: 'Dessert',
+    image: '/images/menu_pics/napolitaine.webp'
   },
   {
     id: 'prod-17', name: "Chocolate Lava Cake", description: "Warm molten chocolate cake with vanilla ice cream",
     basePrice: 280, buyingPrice: 80, stock: 25, initialStock: 25,
     categoryId: 'cat-6', supplierId: 'sup-1', createdAt: new Date().toISOString(),
-    prepTime: 15, dietaryTags: [], isAvailable: true, courseType: 'Dessert'
+    prepTime: 15, dietaryTags: [], isAvailable: true, courseType: 'Dessert',
+    image: '/images/menu_pics/chocolateLavaCake.webp'
   },
 
   // ── SOFT DRINKS ──
@@ -223,19 +238,22 @@ export const MOCK_PRODUCTS: Product[] = [
     id: 'prod-18', name: "Fresh Lime Juice", description: "Freshly squeezed lime with mint & soda water",
     basePrice: 120, buyingPrice: 25, stock: 100, initialStock: 100,
     categoryId: 'cat-7', supplierId: 'sup-3', createdAt: new Date().toISOString(),
-    prepTime: 3, dietaryTags: ['Vegan'], isAvailable: true, courseType: 'Beverage'
+    prepTime: 3, dietaryTags: ['Vegan'], isAvailable: true, courseType: 'Beverage',
+    image: '/images/menu_pics/lime-juice.webp'
   },
   {
     id: 'prod-19', name: "Coca-Cola (330ml)", description: "Classic Cola",
     basePrice: 80, buyingPrice: 25, stock: 200, initialStock: 200,
     categoryId: 'cat-7', supplierId: 'sup-3', createdAt: new Date().toISOString(),
-    prepTime: 0, dietaryTags: [], isAvailable: true, courseType: 'Beverage'
+    prepTime: 0, dietaryTags: [], isAvailable: true, courseType: 'Beverage',
+    image: '/images/menu_pics/cocacola.webp'
   },
   {
     id: 'prod-20', name: "Alouda", description: "Traditional Mauritian milkshake with basil seeds & agar jelly",
     basePrice: 150, buyingPrice: 35, stock: 60, initialStock: 60,
     categoryId: 'cat-7', supplierId: 'sup-3', createdAt: new Date().toISOString(),
-    prepTime: 5, dietaryTags: [], isAvailable: true, courseType: 'Beverage'
+    prepTime: 5, dietaryTags: [], isAvailable: true, courseType: 'Beverage',
+    image: '/images/menu_pics/alouda.webp'
   },
 
   // ── COCKTAILS & SPIRITS ──
@@ -243,13 +261,15 @@ export const MOCK_PRODUCTS: Product[] = [
     id: 'prod-21', name: "Tropical Mojito", description: "White rum, passion fruit, mint, lime & soda",
     basePrice: 350, buyingPrice: 90, stock: 80, initialStock: 80,
     categoryId: 'cat-8', supplierId: 'sup-3', createdAt: new Date().toISOString(),
-    prepTime: 5, dietaryTags: [], isAvailable: true, courseType: 'Beverage'
+    prepTime: 5, dietaryTags: [], isAvailable: true, courseType: 'Beverage',
+    image: '/images/menu_pics/mojito.webp'
   },
   {
     id: 'prod-22', name: "Rum Punch", description: "Signature house punch with local rum & tropical juices",
     basePrice: 300, buyingPrice: 70, stock: 80, initialStock: 80,
     categoryId: 'cat-8', supplierId: 'sup-3', createdAt: new Date().toISOString(),
-    prepTime: 3, dietaryTags: [], isAvailable: true, courseType: 'Beverage'
+    prepTime: 3, dietaryTags: [], isAvailable: true, courseType: 'Beverage',
+    image: '/images/menu_pics/rum-punch.webp'
   },
 
   // ── BEER & WINE ──
@@ -257,13 +277,15 @@ export const MOCK_PRODUCTS: Product[] = [
     id: 'prod-23', name: "Phoenix Beer (330ml)", description: "Local Mauritian lager",
     basePrice: 130, buyingPrice: 45, stock: 150, initialStock: 150,
     categoryId: 'cat-9', supplierId: 'sup-3', createdAt: new Date().toISOString(),
-    prepTime: 0, dietaryTags: [], isAvailable: true, courseType: 'Beverage'
+    prepTime: 0, dietaryTags: [], isAvailable: true, courseType: 'Beverage',
+    image: '/images/menu_pics/phoenix.webp'
   },
   {
     id: 'prod-24', name: "House Red Wine (Glass)", description: "South African Shiraz — fruity & bold",
     basePrice: 250, buyingPrice: 80, stock: 60, initialStock: 60,
     categoryId: 'cat-9', supplierId: 'sup-3', createdAt: new Date().toISOString(),
-    prepTime: 1, dietaryTags: [], isAvailable: true, courseType: 'Beverage'
+    prepTime: 1, dietaryTags: [], isAvailable: true, courseType: 'Beverage',
+    image: '/images/menu_pics/redwine-glass.webp'
   },
 
   // ── HOT BEVERAGES ──
@@ -271,13 +293,15 @@ export const MOCK_PRODUCTS: Product[] = [
     id: 'prod-25', name: "Espresso", description: "Single shot of Italian espresso",
     basePrice: 90, buyingPrice: 15, stock: 200, initialStock: 200,
     categoryId: 'cat-10', supplierId: 'sup-3', createdAt: new Date().toISOString(),
-    prepTime: 2, dietaryTags: ['Vegan'], isAvailable: true, courseType: 'Beverage'
+    prepTime: 2, dietaryTags: ['Vegan'], isAvailable: true, courseType: 'Beverage',
+    image: '/images/menu_pics/espresso.webp'
   },
   {
     id: 'prod-26', name: "Vanilla Tea", description: "Black tea infused with Mauritian vanilla",
     basePrice: 80, buyingPrice: 12, stock: 200, initialStock: 200,
     categoryId: 'cat-10', supplierId: 'sup-3', createdAt: new Date().toISOString(),
-    prepTime: 3, dietaryTags: ['Vegan'], isAvailable: true, courseType: 'Beverage'
+    prepTime: 3, dietaryTags: ['Vegan'], isAvailable: true, courseType: 'Beverage',
+    image: '/images/menu_pics/vanilla-tea.webp'
   },
 ];
 

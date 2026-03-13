@@ -45,9 +45,9 @@ export default function MenuPage() {
   const [editingProduct, setEditingProduct] = useState<any>(null);
 
   useEffect(() => {
-    fetchProducts();
-    fetchSuppliers();
-    fetchCategories();
+    fetchProducts(true);
+    fetchSuppliers(true);
+    fetchCategories(true);
   }, [fetchProducts, fetchSuppliers, fetchCategories]);
 
   const filteredProducts = products

@@ -57,6 +57,7 @@ export default function DashboardPage() {
     completedOrders,
     staff,
     activeLocation,
+    fetchBusinessProfile,
   } = useStore();
   
   const router = useRouter();
@@ -85,18 +86,19 @@ export default function DashboardPage() {
     const loadData = async () => {
       setIsLoading(true);
       const promises = [
+        fetchBusinessProfile(),
         fetchLocations(true),
         fetchSuppliers(true),
-        fetchCategories(),
+        fetchCategories(true),
         fetchCashiers(true),
-        fetchProducts()
+        fetchProducts(true)
       ];
       await Promise.all(promises);
       setIsLoading(false);
     };
 
     loadData();
-  }, [activeAdmin, activeShift, fetchLocations, fetchSuppliers, fetchCashiers, fetchProducts, fetchCategories]);
+  }, [activeAdmin, activeShift, fetchLocations, fetchSuppliers, fetchCashiers, fetchProducts, fetchCategories, fetchBusinessProfile]);
 
   if (!isClient || isLoading) {
     return (
