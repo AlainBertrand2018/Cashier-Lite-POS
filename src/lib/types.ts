@@ -95,6 +95,7 @@ export interface Product {
   dietaryTags?: string[];   // e.g. ['Vegan', 'Gluten-Free', 'Spicy']
   isAvailable?: boolean;    // 86'd status
   courseType?: 'Snack' | 'Starter' | 'Main Course' | 'Main' | 'Side' | 'Dessert' | 'Beverage' | 'Other';
+  image?: string;           // Optional URL for the product image
 }
 
 export interface LocationPrice {

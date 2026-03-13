@@ -104,19 +104,22 @@ export const MOCK_PRODUCTS: Product[] = [
     id: 'prod-1', name: "Dholl Puri Platter", description: "Duo of dholl puri with butter bean curry & chutney",
     basePrice: 180, buyingPrice: 55, stock: 80, initialStock: 80,
     categoryId: 'cat-0', supplierId: 'sup-1', createdAt: new Date().toISOString(),
-    prepTime: 5, dietaryTags: ['Vegan'], isAvailable: true, courseType: 'Snack'
+    prepTime: 5, dietaryTags: ['Vegan'], isAvailable: true, courseType: 'Snack',
+    image: '/images/menu_pics/dholl-puri.webp'
   },
   {
     id: 'prod-3', name: "Gato Pima (6 pcs)", description: "Traditional Mauritian chili bites",
     basePrice: 120, buyingPrice: 30, stock: 120, initialStock: 120,
     categoryId: 'cat-0', supplierId: 'sup-1', createdAt: new Date().toISOString(),
-    prepTime: 8, dietaryTags: ['Vegan', 'Spicy'], isAvailable: true, courseType: 'Snack'
+    prepTime: 8, dietaryTags: ['Vegan', 'Spicy'], isAvailable: true, courseType: 'Snack',
+    image: '/images/menu_pics/Gato-piman.webp'
   },
   {
     id: 'prod-13', name: "French Fries", description: "Crispy golden fries with sea salt",
     basePrice: 120, buyingPrice: 30, stock: 200, initialStock: 200,
     categoryId: 'cat-0', supplierId: 'sup-1', createdAt: new Date().toISOString(),
-    prepTime: 8, dietaryTags: ['Vegan', 'Gluten-Free'], isAvailable: true, courseType: 'Snack'
+    prepTime: 8, dietaryTags: ['Vegan', 'Gluten-Free'], isAvailable: true, courseType: 'Snack',
+    image: '/images/menu_pics/french-fries.webp'
   },
   {
     id: 'prod-15', name: "Garlic Naan", description: "Freshly baked garlic & butter naan bread",

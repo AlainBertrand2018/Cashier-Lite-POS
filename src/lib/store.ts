@@ -90,7 +90,7 @@ interface AppState {
   editSupplier: (id: string, data: Partial<Supplier>) => Promise<void>;
   deleteSupplier: (id: string) => Promise<void>;
   
-  addProduct: (data: Omit<Product, 'id' | 'createdAt'>) => Promise<Product>;
+  addProduct: (data: Omit<Product, 'id' | 'createdAt' | 'initialStock'>) => Promise<Product>;
   editProduct: (id: string, data: Partial<Product>) => Promise<void>;
   deleteProduct: (id: string) => Promise<void>;
   

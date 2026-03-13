@@ -53,6 +53,7 @@ const formSchema = z.object({
     message: 'Stock must be a positive integer.',
   }),
   description: z.string().optional(),
+  image: z.string().url().or(z.literal('')).optional(),
 });
 
 interface AddProductDialogProps {
@@ -75,6 +76,7 @@ export default function AddProductDialog({ isOpen, onOpenChange }: AddProductDia
       basePrice: 0,
       stock: 0,
       description: '',
+      image: '',
     },
   });
 
@@ -218,6 +220,20 @@ export default function AddProductDialog({ isOpen, onOpenChange }: AddProductDia
                   <FormLabel>Description (Optional)</FormLabel>
                   <FormControl>
                     <Input placeholder="Brief description..." {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="image"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Image URL (Optional)</FormLabel>
+                  <FormControl>
+                    <Input placeholder="https://example.com/image.jpg" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

@@ -48,6 +48,7 @@ const formSchema = z.object({
   basePrice: z.coerce.number().min(0),
   stock: z.coerce.number().int().min(0),
   description: z.string().optional(),
+  image: z.string().url().or(z.literal('')).optional(),
 });
 
 interface EditProductDialogProps {
@@ -71,6 +72,7 @@ export default function EditProductDialog({ isOpen, onOpenChange, product }: Edi
       basePrice: product.basePrice,
       stock: product.stock,
       description: product.description || '',
+      image: product.image || '',
     },
   });
 
@@ -83,6 +85,7 @@ export default function EditProductDialog({ isOpen, onOpenChange, product }: Edi
       basePrice: product.basePrice,
       stock: product.stock,
       description: product.description || '',
+      image: product.image || '',
     });
   }, [product, form]);
 
@@ -224,6 +227,20 @@ export default function EditProductDialog({ isOpen, onOpenChange, product }: Edi
                   <FormLabel>Description</FormLabel>
                   <FormControl>
                     <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="image"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Image URL</FormLabel>
+                  <FormControl>
+                    <Input placeholder="https://example.com/image.jpg" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
