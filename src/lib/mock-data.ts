@@ -112,7 +112,7 @@ export const MOCK_PRODUCTS: Product[] = [
     basePrice: 120, buyingPrice: 30, stock: 120, initialStock: 120,
     categoryId: 'cat-0', supplierId: 'sup-1', createdAt: new Date().toISOString(),
     prepTime: 8, dietaryTags: ['Vegan', 'Spicy'], isAvailable: true, courseType: 'Snack',
-    image: '/images/menu_pics/Gato-piman.webp'
+    image: '/images/menu_pics/gato-piman.webp'
   },
   {
     id: 'prod-13', name: "French Fries", description: "Crispy golden fries with sea salt",
